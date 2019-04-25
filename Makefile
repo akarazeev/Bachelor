@@ -69,7 +69,7 @@ export TIMERON
 all: synopsis dissertation presentation
 
 define compile
-	latexmk -norc -r $(MKRC) $(LATEXMKFLAGS) $(BACKEND) -jobname=$(TARGET) $(SOURCE)
+	latexmk -f -norc -r $(MKRC) $(LATEXMKFLAGS) $(BACKEND) -jobname=$(TARGET) $(SOURCE)
 endef
 
 ##! компиляция диссертации

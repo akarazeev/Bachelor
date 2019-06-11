@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block styles %}
+	{{ super() }}
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/img.css') }}">
+{% endblock %}
+
+{% block main_content %}
+    <h3 style="text-align:center;">Графики по данным</h3>
+    <img width="1000" src="{{ url_for('get_image_file', filename=filename) }}">
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+
+    <h3 style="text-align:center;">Содержание датасета "{{ dataset }}"</h3>
+
+	<div class="table-responsive">
+		<table class="table table-bordered table-striped table-sm">
+			<thead>
+				<tr class="dnd-moved">
+					{% for col in header %}
+						<th> {{ col }} </th>
+					{% endfor %}
+				</tr>
+			</thead>
+			<tbody>
+				{% for row in data %}
+					<tr class="dnd-moved">
+						{%for element in row %}
+							<td> {{ element }} </td>
+						{% endfor %}
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.2.1.slim.min.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/dragndrop.table.columns.min.js') }}"></script>
+	<script>
+		$('.table').dragableColumns();
+	</script>
+{% endblock %}

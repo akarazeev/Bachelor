@@ -1,0 +1,32 @@
+.sidebar {
+	position: fixed;
+	top: 48px;
+	bottom: 0;
+	padding-top: .5rem;
+	z-index: 1000;
+	display: block;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+.sidebar-left {
+	left: 0;
+	border-right: 1.5px solid #eee;
+}
+
+.sidebar-right {
+	right: 0;
+	border-left: 1.5px solid #eee;
+}
+
+.main-content {
+	padding-top: 64px;	
+}
+
+.navbar-brand {
+	padding-top: .75rem;
+	padding-bottom: .75rem;
+	font-size: 1rem;
+	background-color: rgba(0, 0, 0, .25);
+	box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
+}

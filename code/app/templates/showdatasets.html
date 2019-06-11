@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+    <h3 style="text-align:center;">Список доступных датасетов:</h3>
+    <br>
+    {% for dataset in datasets %}
+{#        <p><a href="?dataset={{ dataset }}">{{ dataset }}</a></p>#}
+        <p>• {{ dataset }}</p>
+    {% endfor %}
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block styles %}
+	{{ super() }}
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/img.css') }}">
+{% endblock %}
+
+{% block main_content %}
+    <h3 style="text-align:center;">Поиск аномалий</h3>
+    <br>
+
+    <h5 style="text-align:center;">Графики зависимости "{{ axis_y }}" от "{{ axis_x }}"</h5>
+    <img width="100%" alt="" src = "{{ url_for('get_image_file', filename=filename_simple_plot) }}" >
+
+    <br>
+    <h5 style="text-align:center;">Выявленные аномалии для координаты "{{ axis_x }}"</h5>
+    <img width="100%" alt="" src="{{ url_for('get_anomalies_file', filename=filename_simple_anomalies) }}">
+
+    <br>
+    <h5 style="text-align:center;">Выявленные аномалии для координаты "{{ axis_y }}"(TODO)</h5>
+    <img width="100%" alt="" src="{{ url_for('get_anomalies_file', filename=filename_simple_anomalies) }}">
+{% endblock %}

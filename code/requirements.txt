@@ -1,0 +1,7 @@
+Flask==1.0.2
+Flask-Bootstrap4
+Flask-WTF==0.14.2
+pandas
+matplotlib
+numpy
+psycopg2-binary

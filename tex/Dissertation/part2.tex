@@ -78,6 +78,27 @@
 \end{enumerate}
 В качестве источника этих данных выступает библиотека ODDS \cite{odds}.
 
+\begin{table} [htbp]
+	\centering
+	\changecaptionwidth\captionwidth{14cm}
+	\caption{Статистика по данным из рассматриваемых датасетов}\label{tab:stats}%
+	\begin{tabular}{lrrr}
+		\toprule
+		     Датасет & Кол-во объектов & Размерность &  Процент выбросов \\
+		\midrule
+		  arrhythmia &      452 &         274 &      14.60 \\
+		     breastw &      683 &           9 &      34.99 \\
+		       glass &      214 &           9 &       4.21 \\
+		  ionosphere &      351 &          33 &      35.90 \\
+		      letter &     1600 &          32 &       6.25 \\
+		 mammography &    11183 &           6 &       2.33 \\
+		       mnist &     7603 &         100 &       9.21 \\
+		   satellite &     6435 &          36 &      31.64 \\
+		\bottomrule
+		\hline
+	\end{tabular}
+\end{table}
+
 Сравнение данных, которые представлены в указанных датасетах.
 
 \begin{figure}[ht]
@@ -88,6 +109,27 @@
 \end{figure}
 
 \todo{Сравнение алгоритмов на датасетах}
+
+\begin{table} [htbp]
+	\centering
+	\changecaptionwidth\captionwidth{14cm}
+	\caption{Значения ROC для рассматриваемых алгоритмов на данных}\label{tab:rocs}%
+	\begin{tabular}{lrrrrrr}
+		\toprule
+		     Датасет &   KNN &   PCA &  OCSVM &   LOF &  HBOS &  IFOREST \\
+		\midrule   
+   		arrhythmia &  0.7555 &  0.7794 &  0.7825 &  0.7672 &  0.7831 &   \textbf{0.7849} \\
+     breastw &  \textbf{0.9908} &  0.9608 &  0.9649 &  0.4574 &  0.9764 &   0.9872 \\
+       glass &  \textbf{0.8558} &  0.7308 &  0.8077 &  0.6538 &  0.7500 &   0.7212 \\
+  ionosphere &  \textbf{0.9460} &  0.8115 &  0.8684 &  0.9023 &  0.6190 &   0.8632 \\
+      letter &  \textbf{0.8660} &  0.5119 &  0.5985 &  0.8530 &  0.5532 &   0.5770 \\
+ mammography &  0.8346 &  \textbf{0.9039} &  0.8911 &  0.6806 &  0.8506 &   0.8680 \\
+       mnist &  0.8322 &  \textbf{0.8493} &  0.8487 &  0.6727 &  0.5607 &   0.7942 \\
+   satellite &  0.6795 &  0.5601 &  0.6274 &  0.5567 &  \textbf{0.7464} &   0.7008 \\
+		\bottomrule
+		\hline
+	\end{tabular}
+\end{table}
 
 При построении графиков использовалась библиотека adjustText\footnote{\url{https://github.com/Phlya/adjustText/}}.
 

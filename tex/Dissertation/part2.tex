@@ -28,14 +28,14 @@
 
 В терминах этого метода аномалия - объект, полученный из другого распределения, описывающего другую выборку данных.
 
-Есть три подхода:
+\noindent Есть три подхода:
 \begin{enumerate}
   \item Параметрический
   \item Непараметрический
   \item Восстановление смесей
 \end{enumerate}
 
-\textbf{Параметрический метод}
+\noindent\textbf{Параметрический метод}
 
 Распределение представляется в виде $p(x)=\phi(x\vert\theta)$, где $\theta$ выступает в качестве параметра распределения. Например, в семейство параметрических распределений входит распределение Гаусса - $\theta=(\mu, \Sigma)$, где $\mu$ - вектор средних и $\Sigma$ - ковариационная матрица.
 
@@ -47,14 +47,34 @@
 
 \section{Алгоритмы} \label{sec:ch2/sec4}
 
+\noindent В текущей работе были рассмотрены следующие алгоритмы:
+
 \begin{enumerate}
 	\item k-Nearest Neighbors (k-NN) \cite{knn} -- метод k-ближайших соседей.
-	\item Local Outlier Factor (LOF) \cite{lof} -- метод локального уровеня выброса.
-	\item Isolation Forest \cite{iforest} -- метод изолируещего леса.
 	\item Principal Component Analysis (PCA) \cite{pca} -- метод главных компонент.
+	\item One-Class Support Vector Machines (OCSVM) \cite{ocsvm} -- одноклассовый метод опорных векторов.
+	\item Local Outlier Factor (LOF) \cite{lof} -- метод локального уровеня выброса.
 	\item Histogram-Based Outlier Score (HBOS) \cite{hbos} -- оценка выбросов на основе гистограммы.
+	\item Isolation Forest \cite{iforest} -- метод изолируещего леса.
 	\item Single-Objective Generative Adversarial Active Learning (SO-GAAL) \cite{gaal} -- одно-объективное порождающее состязательное активное обучение.
 \end{enumerate}
+
+\section{Датасеты} \label{sec:ch2/sec5}
+
+\noindent Для проверки сервиса были рассмотрены следующие датасеты:
+\begin{enumerate}
+  \item Arrhythmia -- определение наличия аритмии по данным ЭКГ \cite{guvenir}.
+  \item Breast Cancer -- определение типа опухоли молочной железы: доброкачественная или злокачественная.
+  \item Glass -- идентификация типа стекла, оставленного на месте преступления.
+  \item Ionosphere -- рассматриваются характеристики радаров, которые используется в анализе ионосферы: необходимо определить является радар "плохим" или "хорошим".
+  \item Letter Recognition -- по описанию изображения определить присутствует ли буква из английского алфавита или нет
+  \item Mammography -- детектирование микрокальцинатов по данным маммографии
+  \item MNIST -- научиться различать изображения рукописных цифр 6 и 0
+  \item Satellite -- определение типа почвы по спутниковым снимкам.
+\end{enumerate}
+В качестве источника этих данных выступает библиотека ODDS \cite{odds}.
+
+При построении графиков использовалась библиотека adjustText\footnote{\url{https://github.com/Phlya/adjustText/}}.
 
 %\begin{figure}[ht]
 %  \centering

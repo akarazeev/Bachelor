@@ -80,7 +80,6 @@
 
 \begin{table} [htbp]
 	\centering
-	\changecaptionwidth\captionwidth{14cm}
 	\caption{Статистика по данным из рассматриваемых датасетов}\label{tab:stats}%
 	\begin{tabular}{lrrr}
 		\toprule
@@ -112,7 +111,6 @@
 
 \begin{table} [htbp]
 	\centering
-	\changecaptionwidth\captionwidth{14cm}
 	\caption{Значения ROC для рассматриваемых алгоритмов на данных}\label{tab:rocs}%
 	\begin{tabular}{lrrrrrr}
 		\toprule
@@ -131,7 +129,21 @@
 	\end{tabular}
 \end{table}
 
-При построении графиков использовалась библиотека adjustText\footnote{\url{https://github.com/Phlya/adjustText/}}.
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\textwidth, height=\textheight, keepaspectratio] {roc_vs_time}
+  \caption{Эффективность алгоритмов на разных датасетах}
+  \label{fig:roc_vs_time}
+\end{figure}
+
+При построении графиков, которые изображены на рисунке~\ref{fig:roc_vs_time}, использовалась библиотека adjustText\footnote{\url{https://github.com/Phlya/adjustText/}}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\textwidth, height=\textheight, keepaspectratio] {roc_vs_dataset}
+  \caption{Качество алгоритмов в зависимости от датасета}
+  \label{fig:roc_vs_dataset}
+\end{figure}
 
 %\begin{figure}[ht]
 %  \centering

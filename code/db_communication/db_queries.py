@@ -2,11 +2,12 @@ import io
 import psycopg2
 import pandas as pd
 
-PORT='5432'
-DB_NAME='digitlabDB'
-USER='digitlab'
-PASS='12345678'
-HOST='localhost'
+PORT = '5432'
+DB_NAME = 'digitlabDB'
+USER = 'digitlab'
+PASS = '12345678'
+HOST = 'localhost'
+
 
 def commit_query(query_filename):
     parameters = "host={} dbname={} user={} password={} port={}".format(str(HOST), str(DB_NAME), str(USER), str(PASS), str(PORT))
@@ -19,14 +20,14 @@ def commit_query(query_filename):
     try:
         cursor = connection.cursor()
         cursor.execute(query)
-        if(first_word == 'select' or first_word == 'SELECT'):
+        if first_word == 'select' or first_word == 'SELECT':
             rows = cursor.fetchall()
-            print (rows)
+            print(rows)
         connection.commit()
     except (Exception, psycopg2.Error) as error:
         print("Error while working with table", error)
     finally:
-        if(connection):
+        if connection:
             cursor.close()
             connection.close()
 
@@ -71,7 +72,7 @@ def create_file(user_id, file_name, data_frame, column_names, column_types):
     except (Exception, psycopg2.DatabaseError) as error:
         print("Error while working with database", error)
     finally:
-        if(connection):
+        if connection:
             cursor.close()
             connection.close()
 
@@ -92,7 +93,7 @@ def get_dataframe(file_id, num_rows=None):
     except (Exception, psycopg2.DatabaseError) as error:
         print("Error while creating table in {}".format(DB_NAME), error)
     finally:
-        if(connection):
+        if connection:
             connection.close()
 
 
@@ -108,5 +109,5 @@ def get_files(user_id):
     except (Exception, psycopg2.DatabaseError) as error:
         print("Error while creating table in {}".format(DB_NAME), error)
     finally:
-        if(connection):
+        if connection:
             connection.close()

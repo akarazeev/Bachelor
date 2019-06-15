@@ -4,6 +4,14 @@
 
 В ходе работы были проанализированы существующие библиотеки для языка программирования Python, которые упрощают работу с алгоритмами для поиска аномалий и выбросов в данных.
 
-Была обнаружена и исправлена ошибка в библиотеке PyOD\footnote{\href{https://github.com/yzhao062/pyod/pull/108}{Pull Request \#108} в репозитории PyOD}.
+Была обнаружена и исправлена ошибка в библиотеке PyOD\footnote{Pull Request \#108 в репозитории PyOD -- \url{https://github.com/yzhao062/pyod/pull/108}}.
+
+Сервис развёрнут на удалённом сервере Ubuntu 18.04.2 LTS (Bionic Beaver)\footnote{\url{http://releases.ubuntu.com/18.04/}}.
+
+sudo apt-get install postgresql-11
+
+pg\_ctlcluster 11 main start
+
+postgres, создание пользователя и базы данных
 
 \clearpage

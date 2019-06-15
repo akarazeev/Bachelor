@@ -1,6 +1,7 @@
 research/datasets/
-/.idea
+*/.idea
 uploads/
+code/images
 .DS_Store
 
 # Byte-compiled / optimized / DLL files

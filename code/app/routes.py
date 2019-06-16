@@ -11,27 +11,25 @@ from app import app
 from app.forms import UploadFileForm, GraphSettingsForm, AnomaliesForm
 from app.utils import get_json_data, get_header, get_values
 from db_communication import file_processing
-from plot_charts import plot_df, karazeev_plot
+from plot_charts import plot_df, plot_anomalies
 
 from werkzeug.utils import secure_filename
-from werkzeug.datastructures import FileStorage, Headers
-import pandas as pd
-
-import sys
 import os
 
 selected_dataset = None
+last_dataset = None
 
 
 @app.route("/", methods=["GET", "POST"])
 @app.route("/index", methods=["GET", "POST"])
 def index():
-    global selected_dataset
+    global selected_dataset, last_dataset
     # ^ it's bad decision...
 
     if selected_dataset is None:
         selected_dataset = request.args.get("dataset")
         if selected_dataset is not None:
+            last_dataset = selected_dataset
             return redirect(url_for(".index"))
 
     header = None
@@ -105,12 +103,13 @@ def index():
     if anomalies_settings_form.submit_anomalies.data:
         axis_x, axis_y = _get_axes()
 
-        filename_simple_plot = karazeev_plot.simple_plot(
+        filename_simple_plot = plot_anomalies.simple_plot(
             session["current_file_id"], axis_x, axis_y
         )
-        filename_simple_anomalies = karazeev_plot.simple_anomalies(
+        filename_simple_anomalies = plot_anomalies.simple_anomalies(
             session["current_file_id"], axis_x, axis_y
         )
+        filename_data_overview = plot_anomalies.data_overview(session['current_file_id'], dataset_title=last_dataset)
 
         return render_template(
             "showanomalies.html",
@@ -119,8 +118,9 @@ def index():
             anomalies_settings_form=anomalies_settings_form,
             filename_simple_plot=filename_simple_plot,
             filename_simple_anomalies=filename_simple_anomalies,
+            filename_data_overview=filename_data_overview,
             axis_x=axis_x,
-            axis_y=axis_y,
+            axis_y=axis_y
         )
 
     datasets = sorted(os.listdir("uploads/"), key=str.lower)
@@ -163,9 +163,9 @@ def get_image_file(filename):
     return send_from_directory(app.config["IMAGE_FOLDER"], filename)
 
 
-@app.route("/anomalies/<filename>")
-def get_anomalies_file(filename):
-    return send_from_directory(app.config["IMAGE_FOLDER"], filename)
+# @app.route("/anomalies/<filename>")
+# def get_anomalies_file(filename):
+#     return send_from_directory(app.config["IMAGE_FOLDER"], filename)
 
 
 def save_uploaded_file(uploaded_file, skip=False):

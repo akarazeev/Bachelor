@@ -27,18 +27,6 @@ def naive_plot_df(file_id, col_1, col_2):
     axes[1].set_xlabel("Координата: {}".format(col_1), fontsize=15)
     axes[1].set_ylabel("Координата: {}".format(col_2), fontsize=15)
 
-    # axes[1][0].plot(df[col_2], df[col_1], label='f({}) = {}'.format(col_2,col_1), color='orange')
-    # axes[1][0].set_title("Line plot")
-    # axes[1][0].legend(loc="upper right")
-    # axes[1][0].set_xlabel("Координата: {}".format(col_2), fontsize=15)
-    # axes[1][0].set_ylabel("Координата: {}".format(col_1), fontsize=15)
-    #
-    # axes[1][1].scatter(df[col_2], df[col_1], label='f({}) = {}'.format(col_2,col_1), color='orange', marker='^')
-    # axes[1][1].set_title("Scatter plot")
-    # axes[1][1].legend(loc="upper right")
-    # axes[1][1].set_xlabel("Координата: {}".format(col_2), fontsize=15)
-    # axes[1][1].set_ylabel("Координата: {}".format(col_1), fontsize=15)
-
     fig.savefig(path, dpi=100, bbox_inches='tight')
     axes[0].clear()
     axes[1].clear()

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block styles %}
+	{{ super() }}
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/img.css') }}">
+{% endblock %}
+
+{% block main_content_graphs %}
+    <h4 style="text-align:center;">Обзор датасета (размерность уменьшена с помощью алгоритма t-SNE)</h4>
+    <img max-width="100%" src="{{ url_for('get_image_file', filename=filename_data_overview) }}">
+{% endblock %}

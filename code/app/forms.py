@@ -55,3 +55,11 @@ class AnomaliesForm(FlaskForm):
         axes = prepare_axes(axes)
         self.axis_x.choices = axes
         self.axis_y.choices = axes
+
+
+class DataOverviewForm(FlaskForm):
+    submit_dataoverview = SubmitField("Показать данные")
+    submit = SubmitField("Build overview")
+
+    def __init__(self, header, *args, **kwargs):
+        super(DataOverviewForm, self).__init__(*args, **kwargs)

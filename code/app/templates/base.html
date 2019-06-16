@@ -52,6 +52,16 @@
 			</div>
 
 			<div class="col-md-2 sidebar sidebar-right bg-light">
+                <form method=post>
+                    <h5>Обзор данных</h5>
+
+					{{ dataoverview_form.hidden_tag() }}
+
+					<label class="btn btn-default">
+						{{ dataoverview_form.submit_dataoverview() }}
+					</label>
+				</form>
+
 {#				<form class="form-inline center-block" method=post>#}
                 <form method=post>
                     <h5>График по данным</h5>

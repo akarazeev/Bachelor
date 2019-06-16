@@ -9,9 +9,6 @@
     <h3 style="text-align:center;">Поиск аномалий</h3>
     <br>
 
-    <h4 style="text-align:center;">Обзор датасета (размерность уменьшена с помощью алгоритма t-SNE)</h4>
-    <img max-width="100%" src="{{ url_for('get_image_file', filename=filename_data_overview) }}">
-
     <h4 style="text-align:center;">Графики зависимости "{{ axis_y }}" от "{{ axis_x }}"</h4>
     <img max-width="100%" src="{{ url_for('get_image_file', filename=filename_simple_plot) }}" >
 

@@ -1,11 +1,8 @@
 import matplotlib.pyplot as plt
-import numpy as np
 from db_communication import db_queries
 import numpy as np
 from sklearn.manifold import TSNE
 from pyod.utils.data import get_outliers_inliers
-
-import os
 
 
 def simple_plot(file_id, col_1, col_2):
@@ -32,7 +29,7 @@ def simple_plot(file_id, col_1, col_2):
     axes[1].set_xlabel(col_1, fontsize=15)
     axes[1].set_ylabel(col_2, fontsize=15)
 
-    fig.savefig(path, dpi=100, bbox_inches='tight')
+    fig.savefig(path, dpi=100, bbox_inches="tight")
     axes[0].clear()
     axes[1].clear()
 
@@ -60,7 +57,6 @@ def simple_anomalies(file_id, col_1, col_2):
 
     positive_indexes = np.array(list(enumerate(data)))[data > 0][:, 0].astype(int)
     negative_indexes = np.array(list(enumerate(data)))[data < 0][:, 0].astype(int)
-    zeros_indexes = np.array(list(enumerate(data)))[data == 0][:, 0].astype(int)  # ???
 
     outliers_indexes = list()
 
@@ -72,12 +68,11 @@ def simple_anomalies(file_id, col_1, col_2):
     colors = np.zeros(len(data))
     colors[outliers_indexes] = np.ones(len(outliers_indexes))
 
-    # axes.title('Sign feature. max portion={}'.format(outliers_portion))
     axes.scatter(np.arange(len(data)), data, c=colors)
     axes.set_xlabel("Элементы", fontsize=15)
     axes.set_ylabel(col_1, fontsize=15)
 
-    fig.savefig(path, dpi=100, bbox_inches='tight')
+    fig.savefig(path, dpi=100, bbox_inches="tight")
     axes.clear()
 
     return filename
@@ -89,23 +84,28 @@ def data_overview(file_id, dataset_title):
     filename = "overview_{}.png".format(file_id)
     path = "./images/{}".format(filename)
 
-    # mat_file = 'ionosphere.csv'
-    # mat = pd.read_csv(os.path.join('datasets', 'odds', mat_file))
-    mat = mat.drop(['Unnamed: 0', 'Index', 'id', 'Id'], axis=1, errors='ignore')
+    mat = mat.drop(["Unnamed: 0", "Index", "id", "Id"], axis=1, errors="ignore")
 
-    y = mat['outlier'].values
-    X = mat.drop('outlier', axis=1).values
+    y = mat["outlier"].values
+    X = mat.drop("outlier", axis=1).values
 
     X_embedded = TSNE(n_components=2).fit_transform(X)
     X_out, X_in = get_outliers_inliers(X_embedded, y)
 
     plt.figure(figsize=(6, 6))
-    plt.scatter(X_in[:, 0], X_in[:, 1], color='blue', marker='^', alpha=0.4)
-    plt.scatter(X_out[:, 0], X_out[:, 1], color='orange', marker='h', alpha=0.5)
+    plt.scatter(X_in[:, 0], X_in[:, 1], color="blue", marker="^", alpha=0.4)
+    plt.scatter(X_out[:, 0], X_out[:, 1], color="orange", marker="h", alpha=0.5)
     ttl = plt.title(dataset_title[:-4])
-    lgd = plt.legend(labels=['Нормальные данные', 'Аномальные данные'], title="Обозначения",
-                     shadow=True, ncol=1, fontsize=12, loc='center left', bbox_to_anchor=(1, 0.5))
+    lgd = plt.legend(
+        labels=["Нормальные данные", "Аномальные данные"],
+        title="Обозначения",
+        shadow=True,
+        ncol=1,
+        fontsize=12,
+        loc="center left",
+        bbox_to_anchor=(1, 0.5),
+    )
     plt.subplots_adjust(hspace=0.3)
-    plt.savefig(path, dpi=100, bbox_extra_artists=(lgd, ttl), bbox_inches='tight')
+    plt.savefig(path, dpi=100, bbox_extra_artists=(lgd, ttl), bbox_inches="tight")
 
     return filename

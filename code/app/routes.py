@@ -8,7 +8,7 @@ from flask import (
 )
 from app import app
 
-from app.forms import UploadFileForm, GraphSettingsForm, AnomaliesForm
+from app.forms import UploadFileForm, GraphSettingsForm, AnomaliesForm, DataOverviewForm
 from app.utils import get_json_data, get_header, get_values
 from db_communication import file_processing
 from plot_charts import plot_df, plot_anomalies
@@ -38,7 +38,43 @@ def index():
 
     graph_settings_form = GraphSettingsForm(header)
     anomalies_settings_form = AnomaliesForm(header)
+    dataoverview_form = DataOverviewForm(header)
     upload_form = UploadFileForm()
+
+    kwargs = dict(
+        upload_form=upload_form,
+        graph_settings_form=graph_settings_form,
+        anomalies_settings_form=anomalies_settings_form,
+        dataoverview_form=dataoverview_form,
+        header=header,
+    )
+
+    def _get_axes():
+        """
+        Return selected columns to draw plots with.
+        :return: (axis_x, axis_y)
+
+        """
+        return (
+            dict(graph_settings_form.axis_x.choices)[graph_settings_form.axis_x.data],
+            dict(graph_settings_form.axis_y.choices)[graph_settings_form.axis_y.data],
+        )
+
+    def _filesize(path):
+        fs = os.path.getsize(path)
+        m = "B"
+        if fs > 1025:
+            fs /= 1024
+            m = "KB"
+        if fs > 1025:
+            fs /= 1024
+            m = "MB"
+        if fs > 1025:
+            fs /= 1024
+            m = "GB"
+        fs = round(fs)
+        res = "{} {}".format(str(fs), m)
+        return res
 
     # Display content of dataset.
     if upload_form.validate_on_submit() or selected_dataset is not None:
@@ -55,49 +91,32 @@ def index():
         graph_settings_form.change_choices(header)
         anomalies_settings_form.change_choices(header)
 
-        kwargs = dict(
-            upload_form=upload_form,
+        kwargs.update(
             graph_settings_form=graph_settings_form,
             anomalies_settings_form=anomalies_settings_form,
             header=header,
             data=values,
-            dim=len(header) - 2
+            dim=len(header) - 2,
         )
 
         if selected_dataset is not None:
             session["current_file_id"] = save_uploaded_file(uploaded_file, skip=True)
-            kwargs["dataset"] = selected_dataset
+            kwargs.update(dataset=selected_dataset)
             selected_dataset = None
         else:
             session["current_file_id"] = save_uploaded_file(uploaded_file)
-            kwargs["dataset"] = upload_form.uploaded_file.data.filename
+            kwargs.update(dataset=upload_form.uploaded_file.data.filename)
 
         return render_template("showcsv.html", **kwargs)
-
-    def _get_axes():
-        """
-        Return selected columns to draw plots with.
-        :return: (axis_x, axis_y)
-
-        """
-        return (
-            dict(graph_settings_form.axis_x.choices)[graph_settings_form.axis_x.data],
-            dict(graph_settings_form.axis_y.choices)[graph_settings_form.axis_y.data],
-        )
 
     # Simple plots.
     if graph_settings_form.submit_graph.data:
         axis_x, axis_y = _get_axes()
 
         filename = plot_df.naive_plot_df(session["current_file_id"], axis_x, axis_y)
+        kwargs.update(filename=filename, axis_x=axis_x, axis_y=axis_y)
 
-        return render_template(
-            "showgraph.html",
-            upload_form=upload_form,
-            graph_settings_form=graph_settings_form,
-            anomalies_settings_form=anomalies_settings_form,
-            filename=filename,
-        )
+        return render_template("showgraph.html", **kwargs)
 
     # Anomaly Detection.
     if anomalies_settings_form.submit_anomalies.data:
@@ -109,63 +128,46 @@ def index():
         filename_simple_anomalies = plot_anomalies.simple_anomalies(
             session["current_file_id"], axis_x, axis_y
         )
-        filename_data_overview = plot_anomalies.data_overview(session['current_file_id'], dataset_title=last_dataset)
+        filename_data_overview = plot_anomalies.data_overview(
+            session["current_file_id"], dataset_title=last_dataset
+        )
 
-        return render_template(
-            "showanomalies.html",
-            upload_form=upload_form,
-            graph_settings_form=graph_settings_form,
-            anomalies_settings_form=anomalies_settings_form,
+        kwargs.update(
+            axis_x=axis_x,
+            axis_y=axis_y,
             filename_simple_plot=filename_simple_plot,
             filename_simple_anomalies=filename_simple_anomalies,
             filename_data_overview=filename_data_overview,
-            axis_x=axis_x,
-            axis_y=axis_y
         )
+
+        return render_template("showanomalies.html", **kwargs)
+
+    # Data Overview.
+    if dataoverview_form.validate_on_submit():
+        axis_x, axis_y = _get_axes()
+
+        filename_data_overview = plot_anomalies.data_overview(
+            session["current_file_id"], dataset_title=last_dataset
+        )
+
+        kwargs.update(
+            filename_data_overview=filename_data_overview, axis_x=axis_x, axis_y=axis_y
+        )
+
+        return render_template("showdataoverview.html", **kwargs)
 
     datasets = sorted(os.listdir("uploads/"), key=str.lower)
     datasets = list(filter(lambda x: x.startswith(".") is False, datasets))
 
-    def _filesize(path):
-        fs = os.path.getsize(path)
-        m = "B"
-        if fs > 1025:
-            fs /= 1024
-            m = 'KB'
-        if fs > 1025:
-            fs /= 1024
-            m = 'MB'
-        if fs > 1025:
-            fs /= 1024
-            m = 'GB'
-        fs = round(fs)
-        res = "{} {}".format(str(fs), m)
-        return res
+    datasets = list(map(lambda x: (x, _filesize(os.path.join("uploads", x))), datasets))
+    kwargs.update(datasets=datasets)
 
-    datasets = list(
-        map(
-            lambda x: (x, _filesize(os.path.join("uploads", x))),
-            datasets
-        )
-    )
-
-    return render_template(
-        "showdatasets.html",
-        datasets=datasets,
-        upload_form=upload_form,
-        graph_settings_form=graph_settings_form,
-        anomalies_settings_form=anomalies_settings_form,
-    )
+    return render_template("showdatasets.html", **kwargs)
 
 
 @app.route("/images/<filename>")
 def get_image_file(filename):
     return send_from_directory(app.config["IMAGE_FOLDER"], filename)
-
-
-# @app.route("/anomalies/<filename>")
-# def get_anomalies_file(filename):
-#     return send_from_directory(app.config["IMAGE_FOLDER"], filename)
 
 
 def save_uploaded_file(uploaded_file, skip=False):

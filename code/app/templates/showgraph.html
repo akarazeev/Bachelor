@@ -5,7 +5,8 @@
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/img.css') }}">
 {% endblock %}
 
-{% block main_content %}
+{% block main_content_graphs %}
     <h3 style="text-align:center;">Графики по данным</h3>
-    <img width="1000" src="{{ url_for('get_image_file', filename=filename) }}">
+{#    <img width="800" src="{{ url_for('get_image_file', filename=filename) }}">#}
+    <img max-width="100%" src="{{ url_for('get_image_file', filename=filename) }}">
 {% endblock %}

@@ -1,6 +1,7 @@
 research/datasets/
 */.idea
 uploads/
+uploads_old/
 code/images
 .DS_Store
 

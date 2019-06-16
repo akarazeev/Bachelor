@@ -1,4 +1,4 @@
-from flask import request, render_template, session, send_from_directory
+from flask import request, render_template, session, send_from_directory, redirect, url_for
 from app import app
 
 from app.forms import UploadFileForm, GraphSettingsForm, AnomaliesForm
@@ -17,7 +17,11 @@ import os
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
-	selected_dataset = request.args.get('dataset')
+	# selected_dataset = request.args.get('dataset')
+	print(request.args)
+	selected_dataset = None
+	if 'dataset' in request.args:
+		selected_dataset = request.args['dataset']
 	print(selected_dataset)
 
 	header = None
@@ -28,14 +32,11 @@ def index():
 	anomalies_settings_form = AnomaliesForm(header)
 	upload_form = UploadFileForm()
 
+	# Display content of dataset.
 	if upload_form.validate_on_submit() or selected_dataset is not None:
 		if selected_dataset is not None:
-			session["current_data"] = get_json_data('uploads/{}'.format(selected_dataset))
-			d = Headers()
-			d.add('Content-Disposition', 'form-data; name="uploaded_file"; filename="{}"'.format(selected_dataset))
-			d.add('Content-Type', 'text/csv')
-			uploaded_file = FileStorage(filename=selected_dataset, content_type='text/csv', headers=d)
-			uploaded_file.name = 'uploaded_file'
+			uploaded_file = os.path.join('uploads', selected_dataset)
+			session["current_data"] = get_json_data(uploaded_file)
 		else:
 			uploaded_file = upload_form.uploaded_file.data
 			session["current_data"] = get_json_data(uploaded_file)
@@ -46,24 +47,41 @@ def index():
 		graph_settings_form.change_choices(header)
 		anomalies_settings_form.change_choices(header)
 
-		session["current_file_id"] = save_uploaded_file(uploaded_file)
+		redirect(url_for('.index'), code=302)
+		print('redirected')
+		if selected_dataset is not None:
+			session["current_file_id"] = save_uploaded_file(uploaded_file, skip=True)
+			return render_template(
+				'showcsv.html',
+				dataset=selected_dataset,
+				upload_form=upload_form,
+				graph_settings_form=graph_settings_form,
+				anomalies_settings_form=anomalies_settings_form,
+				header=header,
+				data=values
+			)
+		else:
+			session["current_file_id"] = save_uploaded_file(uploaded_file)
+			return render_template(
+				'showcsv.html',
+				dataset=upload_form.uploaded_file.data.filename,
+				upload_form=upload_form,
+				graph_settings_form=graph_settings_form,
+				anomalies_settings_form=anomalies_settings_form,
+				header=header,
+				data=values
+			)
 
-		return render_template(
-			'showcsv.html',
-			dataset=upload_form.uploaded_file.data.filename,
-			upload_form=upload_form,
-			graph_settings_form=graph_settings_form,
-			anomalies_settings_form=anomalies_settings_form,
-			header=header,
-			data=values
-		)
+	# Simple plots.
+	if graph_settings_form.submit_graph.data:
+		print(dict(graph_settings_form.axis_x.choices))
+		axis_x = dict(graph_settings_form.axis_x.choices)[graph_settings_form.axis_x.data]
+		axis_y = dict(graph_settings_form.axis_y.choices)[graph_settings_form.axis_y.data]
 
-	# naive_plot_df
-	if graph_settings_form.submit_graph.data and graph_settings_form.validate_on_submit():
-		axis_x = graph_settings_form.axis_x.data
-		axis_y = graph_settings_form.axis_y.data
+		# print(graph_settings_form.axis_x.raw_data)
+		# print(axis_x, axis_y)
 
-		filename = plot_df.naive_plot_df(session["current_file_id"], axis_x, axis_y, columns=header)
+		filename = plot_df.naive_plot_df(session["current_file_id"], axis_x, axis_y)
 
 		return render_template(
 			"showgraph.html",
@@ -74,12 +92,12 @@ def index():
 		)
 
 	# Anomaly Detection.
-	if anomalies_settings_form.submit_anomalies.data and anomalies_settings_form.validate_on_submit():
-		axis_x = anomalies_settings_form.axis_x.data
-		axis_y = anomalies_settings_form.axis_y.data
+	if anomalies_settings_form.submit_anomalies.data:
+		axis_x = dict(graph_settings_form.axis_x.choices)[graph_settings_form.axis_x.data]
+		axis_y = dict(graph_settings_form.axis_y.choices)[graph_settings_form.axis_y.data]
 
-		filename_simple_plot = karazeev_plot.simple_plot(session["current_file_id"], axis_x, axis_y, columns=header)
-		filename_simple_anomalies = karazeev_plot.simple_anomalies(session["current_file_id"], axis_x, axis_y, columns=header)
+		filename_simple_plot = karazeev_plot.simple_plot(session["current_file_id"], axis_x, axis_y)
+		filename_simple_anomalies = karazeev_plot.simple_anomalies(session["current_file_id"], axis_x, axis_y)
 
 		return render_template(
 			"showanomalies.html",
@@ -104,6 +122,11 @@ def index():
 	)
 
 
+@app.route('/select/<filename>')
+def select_dataset(filename):
+	return redirect(url_for('.index', dataset=filename))
+
+
 @app.route('/images/<filename>')
 def get_image_file(filename):
 	return send_from_directory(app.config['IMAGE_FOLDER'], filename)
@@ -114,12 +137,14 @@ def get_anomalies_file(filename):
 	return send_from_directory(app.config['IMAGE_FOLDER'], filename)
 
 
-def save_uploaded_file(uploaded_file):
-	filename = secure_filename(uploaded_file.filename)
-	filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-	uploaded_file.stream.seek(0)
-	uploaded_file.save(filepath)
-	file_id = file_processing.upload(filepath)
-
+def save_uploaded_file(uploaded_file, skip=False):
+	if skip:
+		file_id = file_processing.upload(uploaded_file)
+	else:
+		filename = secure_filename(uploaded_file.filename)
+		filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+		uploaded_file.stream.seek(0)
+		uploaded_file.save(filepath)
+		file_id = file_processing.upload(filepath)
 	return file_id
 

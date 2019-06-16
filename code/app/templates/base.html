@@ -14,7 +14,7 @@
 
 {% block navbar %}
 	<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-		<a class="navbar-brand col-sm-3 col-md-2 mr-0" href="/index">Digitalab</a>
+		<a class="navbar-brand col-sm-3 col-md-2 mr-0" href="/index">Определение аномалий в данных</a>
 		<ul class="navbar-nav px-3">
 			<li class="nav-item text-nowrap">
 				<a class="nav-link" href="#">О проекте</a>
@@ -47,10 +47,14 @@
 				{% block main_content %}{% endblock %}
 			</div>
 
+            <div>
+				{% block main_content_graphs %}{% endblock %}
+			</div>
+
 			<div class="col-md-2 sidebar sidebar-right bg-light">
 {#				<form class="form-inline center-block" method=post>#}
                 <form method=post>
-                    <h6>График по данным</h6>
+                    <h5>График по данным</h5>
 
 					{{ graph_settings_form.hidden_tag() }}
 
@@ -75,7 +79,7 @@
 
 {#                <form class="form-inline center-block" method=post>#}
                 <form method=post>
-                    <h6>Поиск аномалий</h6>
+                    <h5>Поиск аномалий</h5>
 
 					{{ anomalies_settings_form.hidden_tag() }}
 

@@ -15,22 +15,25 @@ def type_column(s):
 	return 'FLOAT'
 
 
-# вход - получает путь к файлу(пока только с расширением .csv)
-# цель - распарсить файл и сделать запрос к БД для создания таблицы и ее заполнения
-# выход - название таблицы в БД
 def upload(filepath, user_id=1):
-	# проверить файл
+	"""
+	Receive `filepath`. As for now, work only with .csv files.
+	Parse the file and create a query to db to create and fill the table.
+
+	:param filepath:
+	:param user_id:
+	:return: ID of the created table.
+
+	"""
+	# Check extension of the file.
 	file_extension = os.path.splitext(filepath)[1]
 	if file_extension == '.csv':
-		# выделить название столбцов и матрицу значений
 		input = pd.read_csv(filepath)
-		column_names = list(input.columns._data) # название колонок нашей таблицы
+		column_names = list(input.columns._data)
+		column_names = list(map(lambda x: '"{}"'.format(x), column_names))
 		filename = os.path.basename(filepath)
 		first_str = list(input.iloc[0])
 		column_types = [type_column(e) for e in first_str]
-		# удалить файл из системы
-		os.remove(filepath)
-		# сделать запрос к БД для создания таблицы(передать матрицу значений и название столбцов)
+		# Send a query to db to create table corresponding to the passed file.
 		file_id = create_file(user_id, filename, input, column_names, column_types)
-		# возвратить название таблицы в БД
 		return file_id

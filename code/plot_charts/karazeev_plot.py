@@ -3,13 +3,8 @@ import numpy as np
 from db_communication import db_queries
 
 
-def simple_plot(file_id, col_1, col_2, columns=None):
+def simple_plot(file_id, col_1, col_2):
     df = db_queries.get_dataframe(file_id)
-    if columns is not None:
-        df.columns = columns
-    else:
-        col_1 = col_1.lower()
-        col_2 = col_2.lower()
 
     filename = 'simple_plot_{}_{}_{}.png'.format(file_id, col_1, col_2)
     path = './images/{}'.format(filename)
@@ -41,13 +36,8 @@ def simple_plot(file_id, col_1, col_2, columns=None):
     return filename
 
 
-def simple_anomalies(file_id, col_1, col_2, columns=None):
+def simple_anomalies(file_id, col_1, col_2):
     df = db_queries.get_dataframe(file_id)
-    if columns is not None:
-        df.columns = columns
-    else:
-        col_1 = col_1.lower()
-        col_2 = col_2.lower()
 
     filename = 'simple_anomalies_{}_{}_{}.png'.format(file_id, col_1, col_2)
     path = './images/{}'.format(filename)

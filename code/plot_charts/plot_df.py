@@ -8,8 +8,8 @@ def naive_plot_df(file_id, col_1, col_2):
     df = db_queries.get_dataframe(file_id)
 
     if col_1 is None and col_2 is None:
-        col_1 = df.columns[0]
-        col_2 = df.columns[-1]
+        col_1 = df.columns[2]
+        col_2 = df.columns[3]
 
     filename = "output_{}_{}_{}_{}.png".format(
         file_id, col_1, col_2, len(os.listdir("./images/"))

@@ -6,9 +6,6 @@
 {% endblock %}
 
 {% block main_content_graphs %}
-    <h3 style="text-align:center;">Поиск аномалий в датасете "{{ dataset }}"</h3>
-    <br>
-
-    <h4 style="text-align:center;">Результат работы алгоритма определения аномалий в датасете</h4>
+    <h3 style="text-align:center;">Результат работы алгоритма определения аномалий в датасете "{{ dataset }}"</h3>
     <img max-width="100%" src="{{ url_for('get_image_file', filename=filename_analyze_selected_algorithm) }}" >
 {% endblock %}

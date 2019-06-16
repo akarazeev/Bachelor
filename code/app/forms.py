@@ -23,7 +23,6 @@ class GraphSettingsForm(FlaskForm):
 	submit = SubmitField('Show Graph')
 
 	def __init__(self, header, *args, **kwargs):
-		print('Init')
 		super(GraphSettingsForm, self).__init__(*args, **kwargs)
 
 		axes = prepare_axes(header)

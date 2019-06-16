@@ -17,7 +17,7 @@ class UploadFileForm(FlaskForm):
     submit = SubmitField(label="Загрузить")
 
 
-class GraphSettingsForm(FlaskForm):
+class SimpleGraphForm(FlaskForm):
     axis_x = SelectField(label="Первая координата", choices=[], default=2)
     axis_y = SelectField(label="Вторая координата", choices=[], default=3)
 
@@ -25,7 +25,7 @@ class GraphSettingsForm(FlaskForm):
     submit = SubmitField("Show Graph")
 
     def __init__(self, header, *args, **kwargs):
-        super(GraphSettingsForm, self).__init__(*args, **kwargs)
+        super(SimpleGraphForm, self).__init__(*args, **kwargs)
 
         axes = prepare_axes(header)
         self.axis_x.choices = axes
@@ -38,28 +38,23 @@ class GraphSettingsForm(FlaskForm):
 
 
 class AnomaliesForm(FlaskForm):
-    axis_x = SelectField(label="Первая координата", choices=[], default=2)
-    axis_y = SelectField(label="Вторая координата", choices=[], default=3)
-
+    selected_algorithm = SelectField(label="Метод поиска аномалий", default=0)
     submit_anomalies = SubmitField("Показать")
     submit = SubmitField("Detect Anomalies")
 
-    def __init__(self, header, *args, **kwargs):
+    def __init__(self, algorithms, *args, **kwargs):
         super(AnomaliesForm, self).__init__(*args, **kwargs)
+        algorithms = prepare_axes(algorithms)
+        self.selected_algorithm.choices = algorithms
 
-        axes = prepare_axes(header)
-        self.axis_x.choices = axes
-        self.axis_y.choices = axes
-
-    def change_choices(self, axes):
-        axes = prepare_axes(axes)
-        self.axis_x.choices = axes
-        self.axis_y.choices = axes
+    def change_choices(self, algorithms):
+        algorithms = prepare_axes(algorithms)
+        self.selected_algorithm.choices = algorithms
 
 
 class DataOverviewForm(FlaskForm):
     submit_dataoverview = SubmitField("Показать данные")
     submit = SubmitField("Build overview")
 
-    def __init__(self, header, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(DataOverviewForm, self).__init__(*args, **kwargs)

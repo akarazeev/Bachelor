@@ -66,24 +66,24 @@
                 <form method=post>
                     <h5>График по данным</h5>
 
-					{{ graph_settings_form.hidden_tag() }}
+					{{ simplegraph_form.hidden_tag() }}
 
 					<div class="search-input with-dropdown">
 						<div class="dropdown">
-							{{ graph_settings_form.axis_x.label }}
-							{{ graph_settings_form.axis_x(class="dropdown-content hide") }}
+							{{ simplegraph_form.axis_x.label }}
+							{{ simplegraph_form.axis_x(class="dropdown-content hide") }}
 						</div>
 					</div>
 
 					<div class="search-input with-dropdown">
 						<div class="dropdown">
-							{{ graph_settings_form.axis_y.label }}
-							{{ graph_settings_form.axis_y(class="dropdown-content hide") }}
+							{{ simplegraph_form.axis_y.label }}
+							{{ simplegraph_form.axis_y(class="dropdown-content hide") }}
 						</div>
 					</div>
 
 					<label class="btn btn-default">
-						{{ graph_settings_form.submit_graph() }}
+						{{ simplegraph_form.submit_graph() }}
 					</label>
 				</form>
 
@@ -91,24 +91,17 @@
                 <form method=post>
                     <h5>Поиск аномалий</h5>
 
-					{{ anomalies_settings_form.hidden_tag() }}
+					{{ anomalies_form.hidden_tag() }}
 
-					<div class="search-input with-dropdown">
+                    <div class="search-input with-dropdown">
 						<div class="dropdown">
-							{{ anomalies_settings_form.axis_x.label }}
-							{{ anomalies_settings_form.axis_x(class="dropdown-content hide") }}
-						</div>
-					</div>
-
-					<div class="search-input with-dropdown">
-						<div class="dropdown">
-							{{ anomalies_settings_form.axis_y.label }}
-							{{ anomalies_settings_form.axis_y(class="dropdown-content hide") }}
+							{{ anomalies_form.selected_algorithm.label }}
+							{{ anomalies_form.selected_algorithm(class="dropdown-content hide") }}
 						</div>
 					</div>
 
 					<label class="btn btn-default">
-						{{ anomalies_settings_form.submit_anomalies() }}
+						{{ anomalies_form.submit_anomalies() }}
 					</label>
 				</form>
 			</div>

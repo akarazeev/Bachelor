@@ -4,6 +4,20 @@ import numpy as np
 from sklearn.manifold import TSNE
 from pyod.utils.data import get_outliers_inliers
 
+from pyod.models.knn import KNN
+from pyod.models.pca import PCA
+from pyod.models.ocsvm import OCSVM
+from pyod.models.lof import LOF
+from pyod.models.hbos import HBOS
+from pyod.models.iforest import IForest
+from pyod.models.so_gaal import SO_GAAL
+from pyod.models.mo_gaal import MO_GAAL
+
+from pyod.utils.utility import standardizer, precision_n_scores
+
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_auc_score
+
 
 def simple_plot(file_id, col_1, col_2):
     df = db_queries.get_dataframe(file_id)
@@ -74,6 +88,96 @@ def simple_anomalies(file_id, col_1, col_2):
 
     fig.savefig(path, dpi=100, bbox_inches="tight")
     axes.clear()
+
+    return filename
+
+
+algo_mapping = {
+    "KNN": KNN,
+    "PCA": PCA,
+    "OCSVM": OCSVM,
+    "LOF": LOF,
+    "HBOS": HBOS,
+    "IFOREST": IForest,
+    "SO-GAAL": SO_GAAL,
+    "MO-GAAL": MO_GAAL,
+}
+
+random_state = np.random.RandomState(42)
+
+
+def analyze_selected_algorithm(file_id, dataset_title, selected_algortihm):
+    clf_name = selected_algortihm.split()[-1].strip("()")
+    mat = db_queries.get_dataframe(file_id)
+    filename = "analyze_{}_{}.png".format(file_id, clf_name)
+    path = "./images/{}".format(filename)
+
+    mat = mat.drop(["Unnamed: 0", "Index", "id", "Id"], axis=1, errors="ignore")
+
+    y = mat["outlier"].values
+    X = mat.drop("outlier", axis=1).values
+    X_embedded = TSNE(n_components=2).fit_transform(X)
+
+    outliers_fraction = np.count_nonzero(y) / len(y)
+
+    b = np.arange(X.shape[0]).reshape((X.shape[0], 1))
+    X = np.hstack((X, b))
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.25, random_state=random_state
+    )
+    train_ids = X_train[:, -1].astype(int)
+    X_train = X_train[:, :-1]
+    test_ids = X_test[:, -1].astype(int)
+    X_test = X_test[:, :-1]
+
+    # standardizing data for processing, mean=0, var=1
+    X_train_norm, X_test_norm = standardizer(X_train, X_test)
+
+    if clf_name in ["PCA", "IFOREST"]:
+        clf = algo_mapping[clf_name](
+            contamination=outliers_fraction, random_state=random_state
+        )
+    else:
+        clf = algo_mapping[clf_name](contamination=outliers_fraction)
+
+    clf.fit(X_train_norm)
+    test_scores = clf.decision_function(X_test_norm)
+    roc = round(roc_auc_score(y_test, test_scores), ndigits=4)
+    y_test_predicted = clf.predict(X_test_norm)
+
+    # Building the Plot.
+    fig = plt.figure(figsize=(10, 4))
+
+    fig.add_subplot(1, 2, 1)
+    X_out, X_in = X_embedded[test_ids[y_test == 1]], X_embedded[test_ids[y_test == 0]]
+    plt.scatter(X_in[:, 0], X_in[:, 1], color="blue", marker="^", alpha=0.4)
+    plt.scatter(X_out[:, 0], X_out[:, 1], color="orange", marker="h", alpha=0.5)
+    plt.title("Ground truth")
+
+    fig.add_subplot(1, 2, 2)
+    X_out, X_in = (
+        X_embedded[test_ids[y_test_predicted == 1]],
+        X_embedded[test_ids[y_test_predicted == 0]],
+    )
+    plt.scatter(X_in[:, 0], X_in[:, 1], color="blue", marker="^", alpha=0.4)
+    plt.scatter(X_out[:, 0], X_out[:, 1], color="orange", marker="h", alpha=0.5)
+    plt.title("Predicted")
+
+    sptl = plt.suptitle(
+        "Датасет: {}, ROC: {}\nАлгоритм: {}".format(dataset_title[:-4], roc, clf_name),
+        y=1.08,
+        fontsize=14,
+    )
+    lgd = plt.legend(
+        labels=["Нормальные данные", "Аномальные данные"],
+        title="Обозначения",
+        shadow=True,
+        ncol=1,
+        fontsize=12,
+        loc="center left",
+        bbox_to_anchor=(1, 0.5),
+    )
+    plt.savefig(path, dpi=100, bbox_extra_artists=(lgd, sptl), bbox_inches="tight")
 
     return filename
 

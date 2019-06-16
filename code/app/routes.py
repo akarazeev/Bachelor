@@ -8,7 +8,7 @@ from flask import (
 )
 from app import app
 
-from app.forms import UploadFileForm, GraphSettingsForm, AnomaliesForm, DataOverviewForm
+from app.forms import UploadFileForm, SimpleGraphForm, AnomaliesForm, DataOverviewForm
 from app.utils import get_json_data, get_header, get_values
 from db_communication import file_processing
 from plot_charts import plot_df, plot_anomalies
@@ -18,6 +18,17 @@ import os
 
 selected_dataset = None
 last_dataset = None
+
+algorithms = [
+    "k-Nearest Neighbors (KNN)",
+    "Principal Component Analysis (PCA)",
+    "One-class SVM (OCSVM)",
+    "Local Outlier Factor (LOF)",
+    "Histogram-Based Outlier Detection (HBOS)",
+    "Isolation Forest (IFOREST)",
+    "Single-Objective Generative Adversarial Active Learning (SO-GAAL)",
+    "Multiple-Objective Generative Adversarial Active Learning (MO-GAAL)",
+]
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -36,15 +47,15 @@ def index():
     if session.get("current_data") is not None:
         header = get_header(session["current_data"])
 
-    graph_settings_form = GraphSettingsForm(header)
-    anomalies_settings_form = AnomaliesForm(header)
-    dataoverview_form = DataOverviewForm(header)
+    simplegraph_form = SimpleGraphForm(header)
+    anomalies_form = AnomaliesForm(algorithms)
+    dataoverview_form = DataOverviewForm()
     upload_form = UploadFileForm()
 
     kwargs = dict(
         upload_form=upload_form,
-        graph_settings_form=graph_settings_form,
-        anomalies_settings_form=anomalies_settings_form,
+        simplegraph_form=simplegraph_form,
+        anomalies_form=anomalies_form,
         dataoverview_form=dataoverview_form,
         header=header,
     )
@@ -56,9 +67,14 @@ def index():
 
         """
         return (
-            dict(graph_settings_form.axis_x.choices)[graph_settings_form.axis_x.data],
-            dict(graph_settings_form.axis_y.choices)[graph_settings_form.axis_y.data],
+            dict(simplegraph_form.axis_x.choices)[simplegraph_form.axis_x.data],
+            dict(simplegraph_form.axis_y.choices)[simplegraph_form.axis_y.data],
         )
+
+    def _get_algorithm():
+        return dict(anomalies_form.selected_algorithm.choices)[
+            anomalies_form.selected_algorithm.data
+        ]
 
     def _filesize(path):
         fs = os.path.getsize(path)
@@ -88,12 +104,12 @@ def index():
         header = get_header(session["current_data"])
         values = get_values(session["current_data"])
 
-        graph_settings_form.change_choices(header)
-        anomalies_settings_form.change_choices(header)
+        simplegraph_form.change_choices(header)
+        # anomalies_form.change_choices(algorithms)
 
         kwargs.update(
-            graph_settings_form=graph_settings_form,
-            anomalies_settings_form=anomalies_settings_form,
+            simplegraph_form=simplegraph_form,
+            anomalies_form=anomalies_form,
             header=header,
             data=values,
             dim=len(header) - 2,
@@ -110,7 +126,7 @@ def index():
         return render_template("showcsv.html", **kwargs)
 
     # Simple plots.
-    if graph_settings_form.submit_graph.data:
+    if simplegraph_form.submit_graph.data:
         axis_x, axis_y = _get_axes()
 
         filename = plot_df.naive_plot_df(session["current_file_id"], axis_x, axis_y)
@@ -119,25 +135,31 @@ def index():
         return render_template("showgraph.html", **kwargs)
 
     # Anomaly Detection.
-    if anomalies_settings_form.submit_anomalies.data:
+    if anomalies_form.submit_anomalies.data:
         axis_x, axis_y = _get_axes()
+        selected_algortihm = _get_algorithm()
 
-        filename_simple_plot = plot_anomalies.simple_plot(
-            session["current_file_id"], axis_x, axis_y
+        filename_analyze_selected_algorithm = plot_anomalies.analyze_selected_algorithm(
+            session["current_file_id"], last_dataset, selected_algortihm
         )
-        filename_simple_anomalies = plot_anomalies.simple_anomalies(
-            session["current_file_id"], axis_x, axis_y
-        )
-        filename_data_overview = plot_anomalies.data_overview(
-            session["current_file_id"], dataset_title=last_dataset
-        )
+        # filename_simple_plot = plot_anomalies.simple_plot(
+        #     session["current_file_id"], axis_x, axis_y
+        # )
+        # filename_simple_anomalies = plot_anomalies.simple_anomalies(
+        #     session["current_file_id"], axis_x, axis_y
+        # )
+        # filename_data_overview = plot_anomalies.data_overview(
+        #     session["current_file_id"], dataset_title=last_dataset
+        # )
 
         kwargs.update(
+            algorithms=algorithms,
             axis_x=axis_x,
             axis_y=axis_y,
-            filename_simple_plot=filename_simple_plot,
-            filename_simple_anomalies=filename_simple_anomalies,
-            filename_data_overview=filename_data_overview,
+            # filename_simple_plot=filename_simple_plot,
+            # filename_simple_anomalies=filename_simple_anomalies,
+            # filename_data_overview=filename_data_overview,
+            filename_analyze_selected_algorithm=filename_analyze_selected_algorithm,
         )
 
         return render_template("showanomalies.html", **kwargs)

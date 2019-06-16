@@ -9,14 +9,6 @@
     <h3 style="text-align:center;">Поиск аномалий</h3>
     <br>
 
-    <h4 style="text-align:center;">Графики зависимости "{{ axis_y }}" от "{{ axis_x }}"</h4>
-    <img max-width="100%" src="{{ url_for('get_image_file', filename=filename_simple_plot) }}" >
-
-    <br>
-    <h4 style="text-align:center;">Выявленные аномалии для координаты "{{ axis_x }}"</h4>
-    <img max-width="100%" src="{{ url_for('get_image_file', filename=filename_simple_anomalies) }}">
-
-    <br>
-    <h4 style="text-align:center;">Выявленные аномалии для координаты "{{ axis_y }}"(TODO)</h4>
-    <img max-width="100%" src="{{ url_for('get_image_file', filename=filename_simple_anomalies) }}">
+    <h4 style="text-align:center;">Результат работы алгоритма определения аномалий в датасете</h4>
+    <img max-width="100%" src="{{ url_for('get_image_file', filename=filename_analyze_selected_algorithm) }}" >
 {% endblock %}

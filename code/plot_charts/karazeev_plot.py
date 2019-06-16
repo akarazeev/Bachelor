@@ -6,8 +6,8 @@ from db_communication import db_queries
 def simple_plot(file_id, col_1, col_2):
     df = db_queries.get_dataframe(file_id)
 
-    filename = 'simple_plot_{}_{}_{}.png'.format(file_id, col_1, col_2)
-    path = './images/{}'.format(filename)
+    filename = "simple_plot_{}_{}_{}.png".format(file_id, col_1, col_2)
+    path = "./images/{}".format(filename)
 
     x = df[col_1]
     y = df[col_2]
@@ -19,12 +19,12 @@ def simple_plot(file_id, col_1, col_2):
     fig.set_figheight(7)
     fig.set_figwidth(15)
 
-    axes[0].plot(x, y, label='f({}) = {}'.format(col_1, col_2))
+    axes[0].plot(x, y, label="f({}) = {}".format(col_1, col_2))
     axes[0].legend(loc="upper right")
     axes[0].set_xlabel(col_1, fontsize=15)
     axes[0].set_ylabel(col_2, fontsize=15)
 
-    axes[1].scatter(x, y, label='f({}) = {}'.format(col_1, col_2))
+    axes[1].scatter(x, y, label="f({}) = {}".format(col_1, col_2))
     axes[1].legend(loc="upper right")
     axes[1].set_xlabel(col_1, fontsize=15)
     axes[1].set_ylabel(col_2, fontsize=15)
@@ -39,8 +39,8 @@ def simple_plot(file_id, col_1, col_2):
 def simple_anomalies(file_id, col_1, col_2):
     df = db_queries.get_dataframe(file_id)
 
-    filename = 'simple_anomalies_{}_{}_{}.png'.format(file_id, col_1, col_2)
-    path = './images/{}'.format(filename)
+    filename = "simple_anomalies_{}_{}_{}.png".format(file_id, col_1, col_2)
+    path = "./images/{}".format(filename)
 
     x = df[col_1]
     y = df[col_2]
@@ -71,7 +71,7 @@ def simple_anomalies(file_id, col_1, col_2):
 
     # axes.title('Sign feature. max portion={}'.format(outliers_portion))
     axes.scatter(np.arange(len(data)), data, c=colors)
-    axes.set_xlabel('Элементы', fontsize=15)
+    axes.set_xlabel("Элементы", fontsize=15)
     axes.set_ylabel(col_1, fontsize=15)
 
     fig.savefig(path)

@@ -29,7 +29,7 @@ def simple_plot(file_id, col_1, col_2):
     axes[1].set_xlabel(col_1, fontsize=15)
     axes[1].set_ylabel(col_2, fontsize=15)
 
-    fig.savefig(path)
+    fig.savefig(path, dpi=100, bbox_inches='tight')
     axes[0].clear()
     axes[1].clear()
 
@@ -74,7 +74,7 @@ def simple_anomalies(file_id, col_1, col_2):
     axes.set_xlabel("Элементы", fontsize=15)
     axes.set_ylabel(col_1, fontsize=15)
 
-    fig.savefig(path)
+    fig.savefig(path, dpi=100, bbox_inches='tight')
     axes.clear()
 
     return filename

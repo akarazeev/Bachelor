@@ -63,6 +63,7 @@ def index():
             anomalies_settings_form=anomalies_settings_form,
             header=header,
             data=values,
+            dim=len(header) - 2
         )
 
         if selected_dataset is not None:
@@ -122,8 +123,31 @@ def index():
             axis_y=axis_y,
         )
 
-    datasets = sorted(os.listdir("uploads/"))
-    datasets = list(filter(lambda x: x.startswith(".") == False, datasets))
+    datasets = sorted(os.listdir("uploads/"), key=str.lower)
+    datasets = list(filter(lambda x: x.startswith(".") is False, datasets))
+
+    def _filesize(path):
+        fs = os.path.getsize(path)
+        m = "B"
+        if fs > 1025:
+            fs /= 1024
+            m = 'KB'
+        if fs > 1025:
+            fs /= 1024
+            m = 'MB'
+        if fs > 1025:
+            fs /= 1024
+            m = 'GB'
+        fs = round(fs)
+        res = "{} {}".format(str(fs), m)
+        return res
+
+    datasets = list(
+        map(
+            lambda x: (x, _filesize(os.path.join("uploads", x))),
+            datasets
+        )
+    )
 
     return render_template(
         "showdatasets.html",

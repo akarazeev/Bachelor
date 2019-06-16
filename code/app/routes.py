@@ -73,7 +73,7 @@ def index():
             session["current_file_id"] = save_uploaded_file(uploaded_file)
             kwargs["dataset"] = upload_form.uploaded_file.data.filename
 
-            return render_template("showcsv.html", **kwargs)
+        return render_template("showcsv.html", **kwargs)
 
     def _get_axes():
         """

@@ -154,40 +154,78 @@ def analyze_selected_algorithm(file_id, dataset_title, selected_algortihm):
     roc = round(roc_auc_score(y_test, test_scores), ndigits=4)
     y_test_predicted = clf.predict(X_test_norm)
 
-    # Building the Plot.
-    fig = plt.figure(figsize=(10, 4))
+    print(X_train_norm.shape)
 
-    fig.add_subplot(1, 2, 1)
-    X_out, X_in = X_embedded[test_ids[y_test == 1]], X_embedded[test_ids[y_test == 0]]
-    plt.scatter(X_in[:, 0], X_in[:, 1], color="blue", marker="^", alpha=0.4)
-    plt.scatter(X_out[:, 0], X_out[:, 1], color="orange", marker="h", alpha=0.5)
-    plt.title("Ground truth")
+    if X_train_norm.shape[1] > 2:
+        # Building the Plot.
+        fig = plt.figure(figsize=(10, 4))
 
-    fig.add_subplot(1, 2, 2)
-    X_out, X_in = (
-        X_embedded[test_ids[y_test_predicted == 1]],
-        X_embedded[test_ids[y_test_predicted == 0]],
-    )
-    plt.scatter(X_in[:, 0], X_in[:, 1], color="blue", marker="^", alpha=0.4)
-    plt.scatter(X_out[:, 0], X_out[:, 1], color="orange", marker="h", alpha=0.5)
-    plt.title("Predicted")
+        fig.add_subplot(1, 2, 1)
+        X_out, X_in = X_embedded[test_ids[y_test == 1]], X_embedded[test_ids[y_test == 0]]
+        plt.scatter(X_in[:, 0], X_in[:, 1], color="blue", marker="^", alpha=0.4)
+        plt.scatter(X_out[:, 0], X_out[:, 1], color="orange", marker="h", alpha=0.5)
+        plt.title("Ground truth")
 
-    sptl = plt.suptitle(
-        "Датасет: {}, ROC: {}\nАлгоритм: {}".format(dataset_title[:-4], roc, clf_name),
-        y=1.08,
-        fontsize=14,
-    )
-    lgd = plt.legend(
-        labels=["Нормальные данные", "Аномальные данные"],
-        title="Обозначения",
-        shadow=True,
-        ncol=1,
-        fontsize=12,
-        loc="center left",
-        bbox_to_anchor=(1, 0.5),
-    )
-    plt.savefig(path, dpi=100, bbox_extra_artists=(lgd, sptl), bbox_inches="tight")
-    plt.close()
+        fig.add_subplot(1, 2, 2)
+        X_out, X_in = (
+            X_embedded[test_ids[y_test_predicted == 1]],
+            X_embedded[test_ids[y_test_predicted == 0]],
+        )
+        plt.scatter(X_in[:, 0], X_in[:, 1], color="blue", marker="^", alpha=0.4)
+        plt.scatter(X_out[:, 0], X_out[:, 1], color="orange", marker="h", alpha=0.5)
+        plt.title("Predicted")
+
+        sptl = plt.suptitle(
+            "Датасет: {}, ROC: {}\nАлгоритм: {}".format(dataset_title[:-4], roc, clf_name),
+            y=1.08,
+            fontsize=14,
+        )
+        lgd = plt.legend(
+            labels=["Нормальные данные", "Аномальные данные"],
+            title="Обозначения",
+            shadow=True,
+            ncol=1,
+            fontsize=12,
+            loc="center left",
+            bbox_to_anchor=(1, 0.5),
+        )
+        plt.savefig(path, dpi=100, bbox_extra_artists=(lgd, sptl), bbox_inches="tight")
+        plt.close()
+    else:
+        # Building the Plot.
+        fig = plt.figure(figsize=(10, 4))
+
+        fig.add_subplot(1, 2, 1)
+        X_out, X_in = X[test_ids[y_test == 1]][:, :-1], X[test_ids[y_test == 0]][:, :-1]
+        plt.scatter(X_in[:, 0], X_in[:, 1], color="blue", marker="^", alpha=0.4)
+        plt.scatter(X_out[:, 0], X_out[:, 1], color="orange", marker="h", alpha=0.5)
+        plt.title("Ground truth")
+
+        fig.add_subplot(1, 2, 2)
+        X_out, X_in = (
+            X[test_ids[y_test_predicted == 1]][:, :-1],
+            X[test_ids[y_test_predicted == 0]][:, :-1],
+        )
+        plt.scatter(X_in[:, 0], X_in[:, 1], color="blue", marker="^", alpha=0.4)
+        plt.scatter(X_out[:, 0], X_out[:, 1], color="orange", marker="h", alpha=0.5)
+        plt.title("Predicted")
+
+        sptl = plt.suptitle(
+            "Датасет: {}, ROC: {}\nАлгоритм: {}".format(dataset_title[:-4], roc, clf_name),
+            y=1.08,
+            fontsize=14,
+        )
+        lgd = plt.legend(
+            labels=["Нормальные данные", "Аномальные данные"],
+            title="Обозначения",
+            shadow=True,
+            ncol=1,
+            fontsize=12,
+            loc="center left",
+            bbox_to_anchor=(1, 0.5),
+        )
+        plt.savefig(path, dpi=100, bbox_extra_artists=(lgd, sptl), bbox_inches="tight")
+        plt.close()
 
     return filename
 

@@ -4,6 +4,6 @@
     <h3 style="text-align:center;">Список доступных датасетов</h3>
     <br>
     {% for dataset, fs in datasets %}
-        <p><a href="?dataset={{ dataset }}">• {{ dataset }} ({{ fs }})</a></p>
+        <p>• <a href="?dataset={{ dataset }}">{{ dataset }} ({{ fs }})</a></p>
     {% endfor %}
 {% endblock %}

@@ -4,6 +4,10 @@
 
     <h3 style="text-align:center;">Содержание датасета "{{ dataset }}"</h3>
 
+    <p>• Размерность данных: <b>{{ n_dim }} + 1</b></p>
+    <p>• Количество объектов: <b>{{ n_obj }}</b></p>
+    <p>• Количество выбросов: <b>{{ n_out }} ({{ percentage }}%)</b></p>
+
 	<div class="table-responsive">
 		<table class="table table-bordered table-striped table-sm">
 			<thead>
@@ -29,6 +33,4 @@
 	<script>
 		$('.table').dragableColumns();
 	</script>
-
-    <p>• Размерность данных: {{ dim }} + 1</p>
 {% endblock %}

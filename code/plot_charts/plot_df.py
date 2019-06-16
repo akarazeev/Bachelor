@@ -1,13 +1,19 @@
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from db_communication import db_queries
+
+import os
 
 
 def naive_plot_df(file_id, col_1, col_2):
     df = db_queries.get_dataframe(file_id)
 
-    filename = "output_{}_{}_{}.png".format(file_id, col_1, col_2)
+    if col_1 is None and col_2 is None:
+        col_1 = df.columns[0]
+        col_2 = df.columns[-1]
+
+    filename = "output_{}_{}_{}_{}.png".format(
+        file_id, col_1, col_2, len(os.listdir("./images/"))
+    )
     path = "./images/{}".format(filename)
 
     fig, axes = plt.subplots(2, 1)
@@ -38,5 +44,6 @@ def naive_plot_df(file_id, col_1, col_2):
     fig.savefig(path, dpi=100, bbox_inches="tight")
     axes[0].clear()
     axes[1].clear()
+    plt.close()
 
     return filename

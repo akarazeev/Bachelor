@@ -18,11 +18,15 @@ from pyod.utils.utility import standardizer, precision_n_scores
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score
 
+import os
+
 
 def simple_plot(file_id, col_1, col_2):
     df = db_queries.get_dataframe(file_id)
 
-    filename = "simple_plot_{}_{}_{}.png".format(file_id, col_1, col_2)
+    filename = "simple_plot_{}_{}_{}_{}.png".format(
+        file_id, col_1, col_2, len(os.listdir("./images/"))
+    )
     path = "./images/{}".format(filename)
 
     x = df[col_1]
@@ -46,6 +50,7 @@ def simple_plot(file_id, col_1, col_2):
     fig.savefig(path, dpi=100, bbox_inches="tight")
     axes[0].clear()
     axes[1].clear()
+    plt.close()
 
     return filename
 
@@ -53,7 +58,9 @@ def simple_plot(file_id, col_1, col_2):
 def simple_anomalies(file_id, col_1, col_2):
     df = db_queries.get_dataframe(file_id)
 
-    filename = "simple_anomalies_{}_{}_{}.png".format(file_id, col_1, col_2)
+    filename = "simple_anomalies_{}_{}_{}_{}.png".format(
+        file_id, col_1, col_2, len(os.listdir("./images/"))
+    )
     path = "./images/{}".format(filename)
 
     x = df[col_1]
@@ -88,6 +95,7 @@ def simple_anomalies(file_id, col_1, col_2):
 
     fig.savefig(path, dpi=100, bbox_inches="tight")
     axes.clear()
+    plt.close()
 
     return filename
 
@@ -103,13 +111,15 @@ algo_mapping = {
     "MO-GAAL": MO_GAAL,
 }
 
-random_state = np.random.RandomState(42)
+# random_state = np.random.RandomState(42)
 
 
 def analyze_selected_algorithm(file_id, dataset_title, selected_algortihm):
     clf_name = selected_algortihm.split()[-1].strip("()")
     mat = db_queries.get_dataframe(file_id)
-    filename = "analyze_{}_{}.png".format(file_id, clf_name)
+    filename = "analyze_{}_{}_{}.png".format(
+        file_id, clf_name, len(os.listdir("./images/"))
+    )
     path = "./images/{}".format(filename)
 
     mat = mat.drop(["Unnamed: 0", "Index", "id", "Id"], axis=1, errors="ignore")
@@ -122,9 +132,7 @@ def analyze_selected_algorithm(file_id, dataset_title, selected_algortihm):
 
     b = np.arange(X.shape[0]).reshape((X.shape[0], 1))
     X = np.hstack((X, b))
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.25, random_state=random_state
-    )
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25)
     train_ids = X_train[:, -1].astype(int)
     X_train = X_train[:, :-1]
     test_ids = X_test[:, -1].astype(int)
@@ -134,9 +142,10 @@ def analyze_selected_algorithm(file_id, dataset_title, selected_algortihm):
     X_train_norm, X_test_norm = standardizer(X_train, X_test)
 
     if clf_name in ["PCA", "IFOREST"]:
-        clf = algo_mapping[clf_name](
-            contamination=outliers_fraction, random_state=random_state
-        )
+        # clf = algo_mapping[clf_name](
+        #     contamination=outliers_fraction, random_state=random_state
+        # )
+        clf = algo_mapping[clf_name](contamination=outliers_fraction)
     else:
         clf = algo_mapping[clf_name](contamination=outliers_fraction)
 
@@ -178,6 +187,7 @@ def analyze_selected_algorithm(file_id, dataset_title, selected_algortihm):
         bbox_to_anchor=(1, 0.5),
     )
     plt.savefig(path, dpi=100, bbox_extra_artists=(lgd, sptl), bbox_inches="tight")
+    plt.close()
 
     return filename
 
@@ -185,7 +195,7 @@ def analyze_selected_algorithm(file_id, dataset_title, selected_algortihm):
 def data_overview(file_id, dataset_title):
     mat = db_queries.get_dataframe(file_id)
 
-    filename = "overview_{}.png".format(file_id)
+    filename = "overview_{}_{}.png".format(file_id, len(os.listdir("./images/")))
     path = "./images/{}".format(filename)
 
     mat = mat.drop(["Unnamed: 0", "Index", "id", "Id"], axis=1, errors="ignore")
@@ -211,5 +221,6 @@ def data_overview(file_id, dataset_title):
     )
     plt.subplots_adjust(hspace=0.3)
     plt.savefig(path, dpi=100, bbox_extra_artists=(lgd, ttl), bbox_inches="tight")
+    plt.close()
 
     return filename

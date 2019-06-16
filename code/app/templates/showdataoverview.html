@@ -6,6 +6,7 @@
 {% endblock %}
 
 {% block main_content_graphs %}
-    <h4 style="text-align:center;">Обзор датасета (размерность уменьшена с помощью алгоритма t-SNE)</h4>
+    <h3 style="text-align:center;">Обзор датасета "{{ dataset }}"</h3>
+    <h3>(размерность уменьшена с помощью алгоритма t-SNE)</h3>
     <img max-width="100%" src="{{ url_for('get_image_file', filename=filename_data_overview) }}">
 {% endblock %}

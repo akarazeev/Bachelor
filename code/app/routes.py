@@ -10,10 +10,11 @@ from app import app
 
 from app.forms import UploadFileForm, SimpleGraphForm, AnomaliesForm, DataOverviewForm
 from app.utils import get_json_data, get_header, get_values
-from db_communication import file_processing
+from db_communication import file_processing, db_queries
 from plot_charts import plot_df, plot_anomalies
 
 from werkzeug.utils import secure_filename
+import numpy as np
 import os
 
 selected_dataset = None
@@ -60,15 +61,15 @@ def index():
         header=header,
     )
 
-    def _get_axes():
+    def _get_axes(axes_form):
         """
         Return selected columns to draw plots with.
         :return: (axis_x, axis_y)
 
         """
         return (
-            dict(simplegraph_form.axis_x.choices)[simplegraph_form.axis_x.data],
-            dict(simplegraph_form.axis_y.choices)[simplegraph_form.axis_y.data],
+            dict(axes_form.axis_x.choices)[axes_form.axis_x.data],
+            dict(axes_form.axis_y.choices)[axes_form.axis_y.data],
         )
 
     def _get_algorithm():
@@ -96,24 +97,15 @@ def index():
     if upload_form.validate_on_submit() or selected_dataset is not None:
         if selected_dataset is not None:
             uploaded_file = os.path.join("uploads", selected_dataset)
-            session["current_data"] = get_json_data(uploaded_file)
         else:
             uploaded_file = upload_form.uploaded_file.data
-            session["current_data"] = get_json_data(uploaded_file)
+
+        session["current_data"] = get_json_data(uploaded_file)
 
         header = get_header(session["current_data"])
         values = get_values(session["current_data"])
 
         simplegraph_form.change_choices(header)
-        # anomalies_form.change_choices(algorithms)
-
-        kwargs.update(
-            simplegraph_form=simplegraph_form,
-            anomalies_form=anomalies_form,
-            header=header,
-            data=values,
-            dim=len(header) - 2,
-        )
 
         if selected_dataset is not None:
             session["current_file_id"] = save_uploaded_file(uploaded_file, skip=True)
@@ -122,22 +114,66 @@ def index():
         else:
             session["current_file_id"] = save_uploaded_file(uploaded_file)
             kwargs.update(dataset=upload_form.uploaded_file.data.filename)
+        last_dataset = kwargs["dataset"]
+
+        mat = db_queries.get_dataframe(session["current_file_id"])
+        y = mat["outlier"].values
+        X = mat.drop("outlier", axis=1).values
+
+        n_dim = X.shape[1] - 1
+        n_obj = len(y)
+        n_out = np.count_nonzero(y)
+        percentage = round(100 * n_out / n_obj, 2)
+
+        kwargs.update(
+            simplegraph_form=simplegraph_form,
+            anomalies_form=anomalies_form,
+            header=header,
+            data=values,
+            n_dim=n_dim,
+            n_obj=n_obj,
+            n_out=n_out,
+            percentage=percentage,
+        )
 
         return render_template("showcsv.html", **kwargs)
 
     # Simple plots.
     if simplegraph_form.submit_graph.data:
-        axis_x, axis_y = _get_axes()
+        try:
+            axis_x, axis_y = _get_axes(simplegraph_form)
+        except:
+            axis_x, axis_y = None, None
+
+        if "current_file_id" not in session:
+            uploaded_file = os.path.join("uploads", last_dataset)
+            session["current_file_id"] = save_uploaded_file(uploaded_file, skip=True)
+
+            session["current_data"] = get_json_data(uploaded_file)
+            header = get_header(session["current_data"])
+            simplegraph_form.change_choices(header)
+            kwargs.update(simplegraph_form=simplegraph_form)
 
         filename = plot_df.naive_plot_df(session["current_file_id"], axis_x, axis_y)
-        kwargs.update(filename=filename, axis_x=axis_x, axis_y=axis_y)
+        kwargs.update(
+            filename=filename, axis_x=axis_x, axis_y=axis_y, dataset=last_dataset
+        )
 
         return render_template("showgraph.html", **kwargs)
 
     # Anomaly Detection.
     if anomalies_form.submit_anomalies.data:
-        axis_x, axis_y = _get_axes()
+        # axis_x, axis_y = _get_axes(simplegraph_form)
         selected_algortihm = _get_algorithm()
+
+        if "current_file_id" not in session:
+            uploaded_file = os.path.join("uploads", last_dataset)
+            session["current_file_id"] = save_uploaded_file(uploaded_file, skip=True)
+
+            session["current_data"] = get_json_data(uploaded_file)
+            header = get_header(session["current_data"])
+            simplegraph_form.change_choices(header)
+            kwargs.update(simplegraph_form=simplegraph_form)
 
         filename_analyze_selected_algorithm = plot_anomalies.analyze_selected_algorithm(
             session["current_file_id"], last_dataset, selected_algortihm
@@ -154,26 +190,34 @@ def index():
 
         kwargs.update(
             algorithms=algorithms,
-            axis_x=axis_x,
-            axis_y=axis_y,
+            # axis_x=axis_x,
+            # axis_y=axis_y,
             # filename_simple_plot=filename_simple_plot,
             # filename_simple_anomalies=filename_simple_anomalies,
             # filename_data_overview=filename_data_overview,
             filename_analyze_selected_algorithm=filename_analyze_selected_algorithm,
+            dataset=last_dataset,
         )
 
         return render_template("showanomalies.html", **kwargs)
 
     # Data Overview.
     if dataoverview_form.validate_on_submit():
-        axis_x, axis_y = _get_axes()
+        if "current_file_id" not in session:
+            uploaded_file = os.path.join("uploads", last_dataset)
+            session["current_file_id"] = save_uploaded_file(uploaded_file, skip=True)
+
+            session["current_data"] = get_json_data(uploaded_file)
+            header = get_header(session["current_data"])
+            simplegraph_form.change_choices(header)
+            kwargs.update(simplegraph_form=simplegraph_form)
 
         filename_data_overview = plot_anomalies.data_overview(
             session["current_file_id"], dataset_title=last_dataset
         )
 
         kwargs.update(
-            filename_data_overview=filename_data_overview, axis_x=axis_x, axis_y=axis_y
+            filename_data_overview=filename_data_overview, dataset=last_dataset
         )
 
         return render_template("showdataoverview.html", **kwargs)
